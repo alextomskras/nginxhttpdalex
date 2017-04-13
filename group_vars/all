@@ -1,0 +1,10 @@
+---
+# Variables listed here are applicable to all host groups
+
+httpd_port: 8080
+httpd_port_dev: 8081
+
+ntpserver: 10.8.220.100
+# This is used for the nginx server configuration
+server_hostname: app1
+httpd_config: /etc/httpd/conf/httpd.conf

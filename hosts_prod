@@ -1,0 +1,11 @@
+[webservers]
+app3
+
+#[dbservers]
+#app2
+
+[nginxservers]
+app3
+
+[curl]
+app3

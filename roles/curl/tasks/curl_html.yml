@@ -1,0 +1,17 @@
+---
+# These tasks install http and the php modules.
+
+- name: Check that you can connect (GET) to a page and it returns a status 200
+  uri:
+      url: http://{{ ansible_default_ipv4.address }}
+
+      # Check that a page returns a status 200 and fail if the word PROD is not
+      # in the page contents.
+- uri:
+   url: http://{{ ansible_default_ipv4.address }}
+   return_content: yes
+  register: webpage
+
+- name: Fail if PROD is not in the page content
+  fail:
+  when: "'PROD' not in webpage.content"

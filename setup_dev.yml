@@ -1,0 +1,38 @@
+---
+# This playbook deploys the whole application stack in this site.
+
+- name: apply common configuration to all nodes
+  hosts: all
+  remote_user: root
+
+  roles:
+    - common
+
+- name: configure and deploy the webservers and application code
+  hosts: webservers_dev
+  remote_user: root
+
+  roles:
+    - web_dev
+
+- name: configure and deploy the NGINX and code
+  hosts: nginxservers_dev
+  remote_user: root
+
+  roles:
+    - nginx_dev
+
+
+- name: configure and deploy the CURL-DEV and code
+  hosts: curl_dev
+  remote_user: root
+
+  roles:
+    - curl_dev
+
+#- name: deploy MySQL and configure the databases
+#  hosts: dbservers
+#  remote_user: root
+#
+#  roles:
+#    - db

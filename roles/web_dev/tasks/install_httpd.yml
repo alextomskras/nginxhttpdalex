@@ -1,0 +1,47 @@
+---
+# These tasks install http and the php modules.
+
+- name: Install http and php etc
+  yum: name={{ item }} state=present
+  with_items:
+   - httpd
+   - php
+   - php-mysql
+   - git
+   - libsemanage-python
+   - libselinux-python
+
+- name: insert iptables rule for httpd
+  lineinfile: dest=/etc/sysconfig/iptables create=yes state=present regexp="{{ httpd_port }}" insertafter="^:OUTPUT "
+              line="-A INPUT -p tcp  --dport {{ httpd_port }} -j  ACCEPT"
+  notify: restart iptables
+
+- name: Copy HTTPD configuration for proxy
+  template: src=httpd.conf.dev.j2 dest=/etc/httpd/conf/httpd.conf
+  notify: restart httpd
+
+
+- name: http service state
+  service: name=httpd state=started enabled=yes
+
+- name: Configure SELinux to allow httpd to connect to remote database
+  seboolean: name=httpd_can_network_connect_db state=true persistent=yes
+  when: sestatus.rc != 0
+
+- name: Configure SELinux to allow httpd to connect to network
+  seboolean: name=httpd_can_network_connect state=true persistent=yes
+  when: sestatus.rc != 0
+
+- name: Config SELinux over Shell httpd_can_network_connect
+  shell: 'setsebool -P httpd_can_network_connect 1'
+  
+- name: Config SELinux open_relay 8081 port over Shell
+  shell: 'semanage port -m -t http_port_t -p tcp 8081'
+  
+- name: Config SELinux to permissive over Shell
+  shell: 'semanage permissive -a httpd_t'
+
+- name: Config SELinux to global permissive over Shell
+  shell: 'setenforce 0'
+  
+  

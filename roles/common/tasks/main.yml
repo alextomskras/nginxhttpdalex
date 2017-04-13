@@ -1,0 +1,39 @@
+---
+# This playbook contains common plays that will be run on all nodes.
+
+- name: Install ntp
+  yum: name=ntp state=present
+  tags: ntp
+
+- name: Install libsemanage
+  yum: name={{ item }} state=present
+  with_items:
+  - libsemanage-python
+  - libselinux-python
+  - policycoreutils-python
+
+- name: Configure ntp file
+  template: src=ntp.conf.j2 dest=/etc/ntp.conf
+  tags: ntp
+  notify: restart ntp
+
+- name: Start the ntp service
+  service: name=ntpd state=started enabled=yes
+  tags: ntp
+
+- name: test to see if selinux is running
+  command: getenforce
+  register: sestatus
+  changed_when: false
+
+- name: Copy the EPEL repository definition
+  copy: src=epel.repo dest=/etc/yum.repos.d/epel.repo
+  
+- name: Create the GPG key for EPEL
+  copy: src=RPM-GPG-KEY-EPEL-6 dest=/etc/pki/rpm-gpg
+    
+#- name: Set up iptables rules
+#  copy: src=iptables-save dest=/etc/sysconfig/iptables
+#  notify: restart iptables
+        
+        

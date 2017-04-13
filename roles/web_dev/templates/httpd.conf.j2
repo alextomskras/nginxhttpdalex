@@ -1,0 +1,117 @@
+# Apache HTTP server -- main configuration
+#
+# Ansible managed
+
+## General configuration
+ServerRoot /etc/httpd
+Listen 127.0.0.1:8081
+
+
+
+
+##Include conf.modules.d/*.conf
+
+
+User apache
+Group apache
+
+## 'Main' server configuration
+ServerAdmin root@localhost
+
+ServerTokens Prod
+
+# Deny general access to filesystem.
+<Directory />
+    AllowOverride none
+    Require all denied
+</Directory>
+
+DocumentRoot /var/www/html
+
+# Relax access in /var/www
+<Directory "/var/www">
+    AllowOverride None
+    Require all granted
+    Satisfy Any
+#    Require all granted
+</Directory>
+
+# Further relax access to the default document root:
+<Directory "/var/www/html">
+    Options FollowSymLinks ExecCGI MultiViews
+    AllowOverride None
+#    Require all granted
+    Require all granted
+    Satisfy Any
+</Directory>
+
+# Load index.html if directory is requested
+<IfModule dir_module>
+    DirectoryIndex index.html index.php
+</IfModule>
+
+# Prevent .htaccess and .htpasswd files from being viewed by Web clients. 
+<Files ".ht*">
+    Require all denied
+</Files>
+
+#LoadModule fastcgi_module /usr/lib/apache/2.0/mod_fastcgi.so
+LoadModule php5_module modules/libphp5.so
+
+<FilesMatch "\.ph(p[2-6]?|tml)$">
+    SetHandler application/x-httpd-php
+</FilesMatch>
+
+<FilesMatch "\.phps$">
+    SetHandler application/x-httpd-php-source
+</FilesMatch>
+
+# Logging
+ErrorLog "logs/error_log"
+LogLevel warn
+
+<IfModule log_config_module>
+    LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
+    LogFormat "%h %l %u %t \"%r\" %>s %b" common
+
+    <IfModule logio_module>
+      # You need to enable mod_logio.c to use %I and %O
+      LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\" %I %O" combinedio
+    </IfModule>
+
+    CustomLog "logs/access_log" combined
+</IfModule>
+
+# CGI
+<IfModule alias_module>
+    ScriptAlias /cgi-bin/ "/var/www/cgi-bin/"
+</IfModule>
+
+<Directory "/var/www/cgi-bin">
+    AllowOverride None
+    Options None
+    Require all granted
+    Satisfy Any
+#    Require all granted
+</Directory>
+
+# Mime types
+<IfModule mime_module>
+    TypesConfig /etc/mime.types
+
+    AddType application/x-compress .Z
+    AddType application/x-gzip .gz .tgz
+    AddType text/html .shtml
+    AddOutputFilter INCLUDES .shtml
+</IfModule>
+
+AddDefaultCharset UTF-8
+
+<IfModule mime_magic_module>
+    MIMEMagicFile conf/magic
+</IfModule>
+
+EnableSendfile on
+
+# Load other configuration files
+##Include conf.d/*.conf

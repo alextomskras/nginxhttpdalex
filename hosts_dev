@@ -1,0 +1,11 @@
+[webservers_dev]
+app2
+
+#[dbservers]
+#app2
+
+[nginxservers_dev]
+app2
+
+[curl_dev]
+app2
