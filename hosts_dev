@@ -1,5 +1,5 @@
 [webservers_dev]
-app2
+app2 node_hostname=app2.localdomain
 
 #[dbservers]
 #app2
